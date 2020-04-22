@@ -14,25 +14,35 @@ class Convertor():
         pass
 
     def load_to_memory(self, filename_input):
+        # return field.
         stroke_dict = {}
+        encoding_string = None
+        
         dot_dict = {}
         dots_array = []
-        points_array = []
         default_int = -9999
 
         #print("load to memory, filename_input:", filename_input)
         myfile = open(filename_input, 'r')
 
+        code_encoding_string = 'Encoding: '
+        code_encoding_string_length = len(code_encoding_string)
+
         code_begin_string = 'SplineSet'
         code_begin_string_length = len(code_begin_string)
+
         code_end_string = 'EndSplineSet'
         code_end_string_length = len(code_end_string)
 
         is_code_flag=False
 
         stroke_index = 0
-        
+
+
         for x_line in myfile:
+            if code_encoding_string == x_line[:code_encoding_string_length]:
+                encoding_string = x_line[code_encoding_string_length:]
+
             if not is_code_flag:
                 # check begin.
 
@@ -46,13 +56,11 @@ class Convertor():
                     if stroke_index >= 1:
                         stroke_dict[stroke_index]={}
                         stroke_dict[stroke_index]['dots'] = dots_array
-                        stroke_dict[stroke_index]['points'] = points_array
                         #if stroke_index == 1:
                             #print("key:", stroke_index, "data:", stroke_dict)
                         
                         # reset new
                         dots_array = []
-                        points_array = []
 
                     stroke_index += 1
 
@@ -62,8 +70,6 @@ class Convertor():
                     break
 
                 dot_dict = {}
-                #print("add to code:", x_line)
-                dot_dict['code'] = x_line
 
                 # type
                 t=''
@@ -81,15 +87,24 @@ class Convertor():
                 y1=default_int
                 x2=default_int
                 y2=default_int
+
+                # need format code to "ROUND int"
+                new_code = ""
                 if ' ' in x_line:
                     x_line_array = x_line.split(' ')
                     if t=='m':
                         x=int(float(x_line_array[0]))
                         y=int(float(x_line_array[1]))
 
+                        x_line_array[0]=str(x)
+                        x_line_array[1]=str(y)
+
                     if t=='l':
                         x=int(float(x_line_array[1]))
                         y=int(float(x_line_array[2]))
+
+                        x_line_array[1]=str(x)
+                        x_line_array[2]=str(y)
 
                     if t=='c':
                         if len(x_line_array) >=7:
@@ -99,7 +114,20 @@ class Convertor():
                             y1=int(float(x_line_array[2]))
                             x2=int(float(x_line_array[3]))
                             y2=int(float(x_line_array[4]))
-                points_array.append([x,y])
+
+                            x_line_array[1]=str(x1)
+                            x_line_array[2]=str(y1)
+                            x_line_array[3]=str(x2)
+                            x_line_array[4]=str(y2)
+                            x_line_array[5]=str(x)
+                            x_line_array[6]=str(y)
+
+                    #dot_dict['code'] = x_line
+                    new_code = ' '.join(x_line_array)
+                    #print("add to code:", x_line)
+                    #print("new code:", new_code)
+                dot_dict['code'] = new_code
+
 
                 dot_dict['x']=x
                 dot_dict['y']=y
@@ -112,7 +140,7 @@ class Convertor():
                 dots_array.append(dot_dict)
 
         myfile.close()
-        return stroke_dict
+        return stroke_dict, encoding_string
 
     def write_to_file(self, filename_input, stroke_dict, readonly):
         filename_input_new = filename_input + ".tmp"
@@ -168,7 +196,10 @@ class Convertor():
     def convet_font(self, filename_input, readonly=False):
         ret = False
 
-        stroke_dict = self.load_to_memory(filename_input)
+        stroke_dict = {}
+        encoding_string = None
+        stroke_dict, encoding_string = self.load_to_memory(filename_input)
+ 
         self.sp.assign_config(self.config)
 
         ret, stroke_dict = self.sp.trace(stroke_dict)

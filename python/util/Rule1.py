@@ -43,60 +43,64 @@ class Rule(Rule.Rule):
                     # skip traveled nodes.
                     continue
 
-                is_match_pattern = False
+                is_debug_mode = False
+                #is_debug_mode = True
 
-                #print(idx,"debug rule1:",format_dict_array[idx]['code'])
-                # 拔腳
+                if is_debug_mode:
+                    debug_coordinate_list = [[915,791]]
+                    if not([format_dict_array[idx]['x'],format_dict_array[idx]['y']] in debug_coordinate_list):
+                        continue
 
-                if format_dict_array[(idx+1)%nodes_length]['t'] == 'l':
-                    if format_dict_array[(idx+2)%nodes_length]['t'] == 'l':
-                        if format_dict_array[(idx+3)%nodes_length]['t'] == 'l':
-                            is_match_pattern = True
+                    print("="*30)
+                    print("index:", idx)
+                    for debug_idx in range(8):
+                        print(debug_idx-2,": values for rule#2:",format_dict_array[(idx+debug_idx+nodes_length-2)%nodes_length]['code'],'-(',format_dict_array[(idx+debug_idx+nodes_length-2)%nodes_length]['distance'],')')
 
-                # compare 1,0
-                if is_match_pattern:
-                    fail_code = 10
-                    is_match_pattern = False
-                    # only go buttom
-                    if format_dict_array[(idx+1)%nodes_length]['y'] < format_dict_array[(idx+0)%nodes_length]['y']:
-                        is_match_pattern = True
+                # begin travel.
+                is_match_pattern = True
 
-                if is_match_pattern:
-                    is_match_pattern = False
-                    # only go buttom
-                    if abs(format_dict_array[(idx+1)%nodes_length]['x'] - format_dict_array[(idx+0)%nodes_length]['x']) < LINE_ACCURACY:
-                        is_match_pattern = True
-
-                # compare 2,1
                 if is_match_pattern:
                     fail_code = 100
-                    is_match_pattern = False
-                    # only go left.
-                    if abs(format_dict_array[(idx+2)%nodes_length]['y'] - format_dict_array[(idx+1)%nodes_length]['y']) < LINE_ACCURACY:
+                    if format_dict_array[(idx+1)%nodes_length]['t'] == 'l':
+                        if format_dict_array[(idx+2)%nodes_length]['t'] == 'l':
+                            if format_dict_array[(idx+3)%nodes_length]['t'] == 'l':
+                                is_match_pattern = True
 
-                        is_match_pattern = True
-
+                # compare dot+0
                 if is_match_pattern:
                     fail_code = 200
                     is_match_pattern = False
-                    # only go left.
-                    if format_dict_array[(idx+2)%nodes_length]['x'] < format_dict_array[(idx+1)%nodes_length]['x']:
-                        is_match_pattern = True
+                    # only go buttom
+                    if format_dict_array[(idx+0)%nodes_length]['y_direction'] < 0:
+                        if format_dict_array[(idx+0)%nodes_length]['x_equal_fuzzy']:
+                            is_match_pattern = True
 
-                # compare 3,2
+                # compare dot+1
+                if is_match_pattern:
+                    fail_code = 210
+                    is_match_pattern = False
+                    # only go left
+                    if format_dict_array[(idx+1)%nodes_length]['y_equal_fuzzy']:
+                        if format_dict_array[(idx+1)%nodes_length]['x_direction'] < 0:
+                           is_match_pattern = True
+
+                # compare dot+2
                 if is_match_pattern:
                     fail_code = 300
                     is_match_pattern = False
-                    # only go buttom
-                    if format_dict_array[(idx+3)%nodes_length]['y'] > format_dict_array[(idx+2)%nodes_length]['y']:
-                        is_match_pattern = True
+                    # only go up.
+                    if format_dict_array[(idx+2)%nodes_length]['x_equal_fuzzy']:
+                        if format_dict_array[(idx+2)%nodes_length]['y_direction'] > 0:
+                           is_match_pattern = True
 
+                # compare dot+3
                 if is_match_pattern:
                     fail_code = 400
                     is_match_pattern = False
-                    # only go buttom
-                    if abs(format_dict_array[(idx+3)%nodes_length]['x'] - format_dict_array[(idx+2)%nodes_length]['x']) < LINE_ACCURACY:
-                        is_match_pattern = True
+                    # only go left.
+                    if format_dict_array[(idx+3)%nodes_length]['y_equal_fuzzy']:
+                        if format_dict_array[(idx+3)%nodes_length]['x_direction'] < 0:
+                           is_match_pattern = True
 
                 # compare 4,3
                 if is_match_pattern:

@@ -24,11 +24,11 @@ class Rule():
         old_code = format_dict_array[nodes_length-1]['code']
         old_code_array = old_code.split(' ')
         if ' c ' in old_code:
-            last_x = int(old_code_array[5])
-            last_y = int(old_code_array[6])
+            last_x = int(float(old_code_array[5]))
+            last_y = int(float(old_code_array[6]))
         else:
-            last_x = int(old_code_array[1])
-            last_y = int(old_code_array[2])
+            last_x = int(float(old_code_array[1]))
+            last_y = int(float(old_code_array[2]))
 
         #print("original x,y:", spline_x,"-",spline_y,", transformed last x,y=",last_x,"-",last_y)
         if not(spline_x==last_x and spline_y==last_y):
@@ -67,15 +67,15 @@ class Rule():
             old_code_string = format_dict_array[idx]['code']
             old_code_array = old_code_string.split(' ')
             if format_dict_array[idx]['t']=='c':
-                format_dict_array[idx]['x1']=int(old_code_array[1])
-                format_dict_array[idx]['y1']=int(old_code_array[2])
-                format_dict_array[idx]['x2']=int(old_code_array[3])
-                format_dict_array[idx]['y2']=int(old_code_array[4])
-                format_dict_array[idx]['x']=int(old_code_array[5])
-                format_dict_array[idx]['y']=int(old_code_array[6])
+                format_dict_array[idx]['x1']=int(float(old_code_array[1]))
+                format_dict_array[idx]['y1']=int(float(old_code_array[2]))
+                format_dict_array[idx]['x2']=int(float(old_code_array[3]))
+                format_dict_array[idx]['y2']=int(float(old_code_array[4]))
+                format_dict_array[idx]['x']=int(float(old_code_array[5]))
+                format_dict_array[idx]['y']=int(float(old_code_array[6]))
             else:
-                format_dict_array[idx]['x']=int(old_code_array[1])
-                format_dict_array[idx]['y']=int(old_code_array[2])
+                format_dict_array[idx]['x']=int(float(old_code_array[1]))
+                format_dict_array[idx]['y']=int(float(old_code_array[2]))
 
             current_x = format_dict_array[idx]['x']
             current_y = format_dict_array[idx]['y']
@@ -84,10 +84,6 @@ class Rule():
             next_y = format_dict_array[next_index]['y']
             distance = spline_util.get_distance(current_x,current_y,next_x,next_y)
             format_dict_array[idx]['distance']=distance
-
-            format_dict_array[idx]['match_stroke_width'] = False
-            if distance >= self.config.STROKE_WIDTH_MIN and distance <= self.config.STROKE_WIDTH_MAX:
-                format_dict_array[idx]['match_stroke_width'] = True
 
             format_dict_array[idx]['x_direction']=0
             if next_x > current_x:

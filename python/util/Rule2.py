@@ -7,7 +7,7 @@ from . import Rule
 class Rule(Rule.Rule):
 
 # RULE # 2
-# 拔角(左下) 6號洞
+# 拔角(左下) LEFT+BOTTOM
 # PS: 因為 array size change, so need redo.
 
     def __init__(self):
@@ -29,8 +29,9 @@ class Rule(Rule.Rule):
         MIN_NEIGHBOR_HEIGHT=90      
         
         UNDERGROUND_LENGTH=750      
-        # for 匯，因為"佳"，沒套到.，for 謳，有點短 (X=957-465=492)
+        # for 匯，裡的"佳"，沒套到.，for 謳，有點短 (X=957-465=492)
         # 改成 480, 會造成 集，沒有尾巴！
+
         LINE_ACCURACY=3
 
         # fix 搏/博/㙛/捕 誤拔問題。
@@ -53,77 +54,68 @@ class Rule(Rule.Rule):
                     # skip traveled nodes.
                     continue
 
-                is_match_pattern = False
+                is_debug_mode = False
+                #is_debug_mode = True
 
-                #print(idx,"debug rule2:",format_dict_array['code'][idx])
-                # 拔腳
+                if is_debug_mode:
+                    debug_coordinate_list = [[915,-33]]
+                    if not([format_dict_array[idx]['x'],format_dict_array[idx]['y']] in debug_coordinate_list):
+                        continue
 
-                #if format_dict_array['t'][(idx+0)%nodes_length] != 'c':
-                if format_dict_array[(idx+1)%nodes_length]['t'] == 'l':
-                    if format_dict_array[(idx+2)%nodes_length]['t'] == 'l':
-                        if format_dict_array[(idx+3)%nodes_length]['t'] == 'l':
-                            #if format_dict_array['t'][(idx+4)%nodes_length] != 'c':
-                            is_match_pattern = True
+                    print("="*30)
+                    print("index:", idx)
+                    for debug_idx in range(8):
+                        print(debug_idx-2,": values for rule#2:",format_dict_array[(idx+debug_idx+nodes_length-2)%nodes_length]['code'],'-(',format_dict_array[(idx+debug_idx+nodes_length-2)%nodes_length]['distance'],')')
 
-                # compare 1,0
-                if is_match_pattern:
-                    fail_code = 10
-                    is_match_pattern = False
-                    # only go buttom
-                    if abs(format_dict_array[(idx+1)%nodes_length]['y'] - format_dict_array[(idx+0)%nodes_length]['y']) < LINE_ACCURACY:
-                        is_match_pattern = True
+                # begin travel.
+                is_match_pattern = True
 
-                if is_match_pattern:
-                    is_match_pattern = False
-                    # only go buttom
-                    if format_dict_array[(idx+1)%nodes_length]['x'] < format_dict_array[(idx+0)%nodes_length]['x']:
-                        is_match_pattern = True
-
-                # compare 2,1
                 if is_match_pattern:
                     fail_code = 100
-                    is_match_pattern = False
-                    # only go left.
-                    if format_dict_array[(idx+2)%nodes_length]['y'] < format_dict_array[(idx+1)%nodes_length]['y']:
-                        is_match_pattern = True
+                    if format_dict_array[(idx+1)%nodes_length]['t'] == 'l':
+                        if format_dict_array[(idx+2)%nodes_length]['t'] == 'l':
+                            if format_dict_array[(idx+3)%nodes_length]['t'] == 'l':
+                                is_match_pattern = True
 
-                if is_match_pattern:
-                    is_match_pattern = False
-                    # only go left.
-                    if abs(format_dict_array[(idx+2)%nodes_length]['x'] - format_dict_array[(idx+1)%nodes_length]['x']) < LINE_ACCURACY:
-                        is_match_pattern = True
-
-                # compare 3,2
+                # compare dot+0
                 if is_match_pattern:
                     fail_code = 200
                     is_match_pattern = False
-                    # only go buttom
-                    if abs(format_dict_array[(idx+3)%nodes_length]['y'] - format_dict_array[(idx+2)%nodes_length]['y']) < LINE_ACCURACY:
-                        is_match_pattern = True
+                    # only go left
+                    if format_dict_array[(idx+0)%nodes_length]['y_equal_fuzzy']:
+                        if format_dict_array[(idx+0)%nodes_length]['x_direction'] < 0:
+                            is_match_pattern = True
 
+                # compare dot+1
                 if is_match_pattern:
+                    fail_code = 210
                     is_match_pattern = False
-                    # only go buttom
-                    if format_dict_array[(idx+3)%nodes_length]['x'] < format_dict_array[(idx+2)%nodes_length]['x']:
-                        is_match_pattern = True
+                    # only go bottom
+                    if format_dict_array[(idx+1)%nodes_length]['x_equal_fuzzy']:
+                        if format_dict_array[(idx+1)%nodes_length]['y_direction'] < 0:
+                           is_match_pattern = True
 
-                # compare 4,3
+                # compare dot+2
                 if is_match_pattern:
                     fail_code = 300
                     is_match_pattern = False
                     # only go left.
-                    if format_dict_array[(idx+4)%nodes_length]['y'] > format_dict_array[(idx+3)%nodes_length]['y']:
-                        is_match_pattern = True
+                    if format_dict_array[(idx+2)%nodes_length]['y_equal_fuzzy']:
+                        if format_dict_array[(idx+2)%nodes_length]['x_direction'] < 0:
+                           is_match_pattern = True
 
+                # compare dot+3
                 if is_match_pattern:
+                    fail_code = 400
                     is_match_pattern = False
-                    # only go left.
-                    if abs(format_dict_array[(idx+4)%nodes_length]['x'] - format_dict_array[(idx+3)%nodes_length]['x']) < LINE_ACCURACY:
-                        is_match_pattern = True
+                    # only go up.
+                    if format_dict_array[(idx+3)%nodes_length]['x_equal_fuzzy']:
+                        if format_dict_array[(idx+3)%nodes_length]['y_direction'] > 0:
+                           is_match_pattern = True
 
                 # must match x axis same direction.
                 if is_match_pattern:
-                    fail_code = 400
+                    fail_code = 500
                     x_array = []
                     y_array = []
                     for t_idx in range(rule_need_lines):
@@ -152,7 +144,7 @@ class Rule(Rule.Rule):
 
                 # check leg length percent
                 if is_match_pattern:
-                    fail_code = 500
+                    fail_code = 600
                     body_length = abs(format_dict_array[(idx+4) % nodes_length]['y']-format_dict_array[(idx+3) % nodes_length]['y'])
                     leg_length = abs(format_dict_array[(idx+2) % nodes_length]['y']-format_dict_array[(idx+1) % nodes_length]['y'])
                     if body_length > 0:
@@ -181,7 +173,7 @@ class Rule(Rule.Rule):
 
                 # 增加例外的case, ex: 佳 和 集
                 if is_match_pattern:
-                    fail_code = 600
+                    fail_code = 700
                     # neighbor height 太短，就不拔腳。
                     #print("neighbor_height:", neighbor_height)
 
@@ -205,7 +197,7 @@ class Rule(Rule.Rule):
 
                 # fix 搏/博/㙛/捕 誤拔問題。
                 if is_match_pattern:
-                    fail_code = 700
+                    fail_code = 800
                     y_equal_check = False
                     if format_dict_array[(idx+0)%nodes_length]['y_equal_fuzzy']:
                         if format_dict_array[(idx+2)%nodes_length]['y_equal_fuzzy']:
@@ -215,6 +207,15 @@ class Rule(Rule.Rule):
                     if y_equal_check:
                         if abs(format_dict_array[(idx+0)%nodes_length]['y'] - format_dict_array[(idx-3+nodes_length)%nodes_length]['y']) < NEXT_HORIZONTAL_LINE_Y_ACCURACY:
                             is_match_pattern = False
+
+                if is_debug_mode:
+                    if not is_match_pattern:
+                        print("#", idx,": debug fail_code#2:", fail_code)
+                        pass
+                    else:
+                        print("match rule #2")
+                        print(idx,"debug rule#2:",format_dict_array[idx]['code'])
+                        pass
 
                 #print("fail code:", fail_code)
                 if is_match_pattern:

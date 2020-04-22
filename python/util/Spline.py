@@ -9,14 +9,14 @@ class Spline():
     def __init__(self):
         pass
 
-    def check_clockwise(self, poly):
+    def check_clockwise(self, spline_dict):
         clockwise = True
         area_total=0
-        poly_lengh = len(poly)
+        poly_lengh = len(spline_dict['dots'])
         #print('check poly: (%d,%d)' % (poly[0][0],poly[0][1]))
         for idx in range(poly_lengh):
             #item_sum = ((poly[(idx+1)%poly_lengh][0]-poly[(idx+0)%poly_lengh][0]) * (poly[(idx+1)%poly_lengh][1]-poly[(idx+0)%poly_lengh][1]))
-            item_sum = ((poly[(idx+0)%poly_lengh][0]*poly[(idx+1)%poly_lengh][1]) - (poly[(idx+1)%poly_lengh][0]*poly[(idx+0)%poly_lengh][1]))
+            item_sum = ((spline_dict['dots'][(idx+0)%poly_lengh]['x']*spline_dict['dots'][(idx+1)%poly_lengh]['y']) - (spline_dict['dots'][(idx+1)%poly_lengh]['x']*spline_dict['dots'][(idx+0)%poly_lengh]['y']))
             #print(idx, poly[idx][0], poly[idx][1], item_sum)
             area_total += item_sum
         #print("area_total:",area_total)
@@ -41,10 +41,12 @@ class Spline():
             # for debug
             #if key==2:
             if True:
-                clockwise = self.check_clockwise(spline_dict['points'])
+                clockwise = self.check_clockwise(spline_dict)
                 #print("clockwise:", clockwise)
                 if clockwise:
-                    spline_dict = self.trace_nodes_in_strok(spline_dict)
+                    trace_result, spline_dict = self.trace_nodes_in_strok(spline_dict)
+                    if trace_result:
+                        is_modified = True
 
             stroke_dict[key] = spline_dict
 
@@ -116,8 +118,8 @@ class Spline():
         # start to travel nodes for [RULE #1]
         # 
         idx=-1
-        redo_travel=True
-        #redo_travel=False
+        redo_travel=False   # Disable
+        redo_travel=True    # Enable
         while redo_travel:
             redo_travel,idx=ru1.apply(spline_dict, idx)
             if redo_travel:
@@ -127,8 +129,8 @@ class Spline():
         # start to travel nodes for [RULE #2]
         # 
         idx=-1
-        redo_travel=True
-        #redo_travel=False
+        redo_travel=False   # Disable
+        redo_travel=True    # Enable
         while redo_travel:
             redo_travel,idx=ru2.apply(spline_dict, idx)
             if redo_travel:
