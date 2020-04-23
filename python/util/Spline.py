@@ -99,7 +99,7 @@ class Spline():
 
         spline_dict["top"]  = margin_top
         spline_dict["bottom"] = margin_bottom
-        spline_dict["lef"] = margin_left
+        spline_dict["left"] = margin_left
         spline_dict["right"] = margin_right
 
     def trace_nodes_in_strok(self, spline_dict):
