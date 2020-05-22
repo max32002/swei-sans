@@ -16,12 +16,12 @@ class Rule(Rule.Rule):
     def apply(self, spline_dict, resume_idx):
         redo_travel=False
 
-        MAX_LEG_LENGTH_PERCENT=19
+        MAX_LEG_LENGTH_PERCENT=21
         MAX_LEFT_MOUNTAIN_HEIGHT = 30   # for 山 & 出 的橫線。獅尾黑體
         LINE_ACCURACY=3
 
         MORE_LEG_LENGTH_UNDERGROUND_LENGTH = 600   # for 㠀的山要拔腳。底夠長，可以多拔一點。
-        MORE_LEG_LENGTH_PERCENT=23
+        MORE_MAX_LEG_LENGTH_PERCENT=24
 
         # fix 搏/博/㙛/捕 誤拔問題。
         NEXT_HORIZONTAL_LINE_Y_ACCURACY=6
@@ -155,7 +155,7 @@ class Rule(Rule.Rule):
                             # but.
                             underground_distance = format_dict_array[(idx+3) % nodes_length]['x']-format_dict_array[(idx+4) % nodes_length]['x']
                             if underground_distance >= MORE_LEG_LENGTH_UNDERGROUND_LENGTH:
-                                if leg_percent < MORE_LEG_LENGTH_PERCENT:
+                                if leg_percent < MORE_MAX_LEG_LENGTH_PERCENT:
                                     is_match_pattern = True                
 
                 # fix 搏/博/㙛/捕 誤拔問題。

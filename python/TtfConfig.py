@@ -2,7 +2,7 @@
 #encoding=utf-8
 
 class TtfConfig():
-    VERSION = "1.022"
+    VERSION = "1.030"
     PROCESS_MODE = "SANS"
 
     STYLE_INDEX = 4

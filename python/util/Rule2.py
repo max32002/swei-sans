@@ -16,21 +16,25 @@ class Rule(Rule.Rule):
     def apply(self, spline_dict, resume_idx):
         redo_travel=False
 
-        MAX_LEG_LENGTH_PERCENT=19
+        MAX_LEG_LENGTH_PERCENT=21
         
         # 如果對面高於 300，則支援長尾巴。 for「﨑」裡的口.
         # BUT: 這個在 Thin weight 裡是 361-125=236 超短！
         MORE_LEG_LENGTH_NEIGHBOR_HEIGHT = 220
 
-        MORE_LEG_LENGTH_PERCENT=26
+        MORE_MAX_LEG_LENGTH_PERCENT=26
         
         # for 佳 (regular), 會套到。右下要>70
         # 「集」的 Bold style, Y axis, 379-289=90
+        # PS: ver 1.030 版後，決定拔掉佳的左下角。
+        #   : 所以這一個變數暫時沒在使用。
         MIN_NEIGHBOR_HEIGHT=90      
-        
-        UNDERGROUND_LENGTH=750      
+
+        # PS: ver 1.030 版後，決定拔掉佳的左下角。
+        #   : 所以這一個變數暫時沒在使用。
         # for 匯，裡的"佳"，沒套到.，for 謳，有點短 (X=957-465=492)
         # 改成 480, 會造成 集，沒有尾巴！
+        UNDERGROUND_LENGTH=750      
 
         LINE_ACCURACY=3
 
@@ -58,7 +62,7 @@ class Rule(Rule.Rule):
                 #is_debug_mode = True
 
                 if is_debug_mode:
-                    debug_coordinate_list = [[915,-33]]
+                    debug_coordinate_list = [[912,-38]]
                     if not([format_dict_array[idx]['x'],format_dict_array[idx]['y']] in debug_coordinate_list):
                         continue
 
@@ -152,13 +156,21 @@ class Rule(Rule.Rule):
                         if leg_percent > MAX_LEG_LENGTH_PERCENT:
                             #print("Fail leg_percent:", leg_percent)
                             #print("neighbor_height:", neighbor_height)
+                            #print("leg_height:", leg_length)
+                            #print("body_height:", body_length)
                             is_match_pattern = False
+
+                            # 當遇到口造形時，應該直接拔掉。
+                            # PS: 一定要加這一個前提，不然 門左邊會消失. 
+                            if leg_percent <= MORE_MAX_LEG_LENGTH_PERCENT:
+                                if abs(body_length - (neighbor_height+leg_length)) <= 2:
+                                    is_match_pattern = True
 
                             # from top go buttom.
                             if neighbor_height > 0:
                                 if neighbor_height > MORE_LEG_LENGTH_NEIGHBOR_HEIGHT:
                                     # 右側高度夠長，允論較長的百分比。
-                                    if leg_percent <= MORE_LEG_LENGTH_PERCENT:
+                                    if leg_percent <= MORE_MAX_LEG_LENGTH_PERCENT:
                                         is_match_pattern = True
                                     
 
@@ -172,7 +184,10 @@ class Rule(Rule.Rule):
                                             is_match_pattern = True
 
                 # 增加例外的case, ex: 佳 和 集
-                if is_match_pattern:
+                # PS: ver 1.030 版後，決定拔掉佳的左下角。
+                #   : 所以這一個變數暫時沒在使用。
+                #if is_match_pattern:
+                if False:
                     fail_code = 700
                     # neighbor height 太短，就不拔腳。
                     #print("neighbor_height:", neighbor_height)
