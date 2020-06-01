@@ -35,6 +35,11 @@ class Spline():
         #print(stroke_dict)
         is_modified = False
 
+        bmp_image = None
+        y_offset = 880
+
+        self.preprocess(stroke_dict)
+
         for key in stroke_dict.keys():
             spline_dict = stroke_dict[key]
             #print("key:", key, 'code:', spline_dict['dots'][0])
@@ -43,6 +48,7 @@ class Spline():
             if True:
                 clockwise = self.check_clockwise(spline_dict)
                 #print("clockwise:", clockwise)
+                self.normalize(stroke_dict, key, bmp_image, y_offset)
                 if clockwise:
                     trace_result, spline_dict = self.trace_nodes_in_strok(spline_dict)
                     if trace_result:
@@ -101,6 +107,111 @@ class Spline():
         spline_dict["bottom"] = margin_bottom
         spline_dict["left"] = margin_left
         spline_dict["right"] = margin_right
+
+    def split_spline(self, stroke_dict):
+        redo_split = False
+        from . import Rule101_Split_Spline
+
+        #print("before split count:", len(stroke_dict))
+        for key in stroke_dict.keys():
+            spline_dict = stroke_dict[key]
+            #print("key:", key, 'code:', spline_dict['dots'][0])
+            # for debug
+            #if key==5:
+            if True:
+                clockwise = self.check_clockwise(spline_dict)
+                #print("clockwise:", clockwise)
+                if clockwise:
+                    # format code.
+                    # start to travel nodes for [RULE #9]
+                    # format curve coner as l conver
+
+                    ru101=Rule101_Split_Spline.Rule()
+                    ru101.assign_config(self.config)
+
+                    idx=-1
+                    redo_travel,idx,new_format_dict_array=ru101.apply(spline_dict, idx)
+                    ru101 = None
+
+                    if redo_travel:
+                        if new_format_dict_array != None:
+                            if len(new_format_dict_array) > 0:
+                                new_key_index = len(stroke_dict)+1
+                                stroke_dict[new_key_index]={}
+                                stroke_dict[new_key_index]['dots']=new_format_dict_array
+                        redo_split = True
+                        break
+
+            stroke_dict[key] = spline_dict
+
+        #print("after split count:", len(stroke_dict))
+
+        return redo_split
+
+    def preprocess(self, stroke_dict):
+        MAX_SPLIT_CONNT = 100
+
+        idx=-1
+        redo_split=False   # Disable
+        redo_split=True    # Enable
+        while redo_split:
+            idx+=1
+            redo_split=self.split_spline(stroke_dict)
+            if idx >= MAX_SPLIT_CONNT:
+                redo_split = False
+
+    def normalize(self, stroke_dict, key, bmp_image, y_offset):
+        from . import Rule102_Clean_Noise
+        ru102=Rule102_Clean_Noise.Rule()
+        ru102.assign_config(self.config)
+        
+        from . import Rule103_Merge_Line
+        ru103=Rule103_Merge_Line.Rule()
+        ru103.assign_config(self.config)
+
+        from . import Rule104_Almost_Line_Curve
+        ru104=Rule104_Almost_Line_Curve.Rule()
+        ru104.assign_config(self.config)
+
+        spline_dict = stroke_dict[key]
+
+        # ==================================================
+        # format code block
+        # ==================================================
+
+        # format code.
+        # start to travel nodes for [RULE #104]
+        # format curve coner as l conver
+        #print("start Rule # 104...")
+        idx=-1
+        redo_travel=False   # Disable
+        redo_travel=True    # Enable
+        while redo_travel:
+            redo_travel,idx=ru104.apply(spline_dict, idx)
+        ru104 = None
+
+
+        # start to travel nodes for [RULE #102]
+        # format curve coner as l conver
+        #print("start Rule # 102...")
+        idx=-1
+        redo_travel=False   # Disable
+        redo_travel=True    # Enable
+        while redo_travel:
+            redo_travel,idx=ru102.apply(spline_dict, idx)
+        ru102 = None
+
+        # start to travel nodes for [RULE #103]
+        # 有 first point 的關係，有時會有一小段的直線。
+        #print("start Rule # 103...")
+        idx=-1
+        redo_travel=False   # Disable
+        redo_travel=True    # Enable
+        while redo_travel:
+            redo_travel,idx=ru103.apply(spline_dict, idx)
+        ru103 = None
+
+        return spline_dict
 
     def trace_nodes_in_strok(self, spline_dict):
         is_modified = False

@@ -108,6 +108,14 @@ class Rule(Rule.Rule):
                         if format_dict_array[(idx+2)%nodes_length]['x_direction'] < 0:
                            is_match_pattern = True
 
+                # dot# 2 match stroke width
+                if is_match_pattern:
+                    fail_code = 310
+                    is_match_pattern = False
+                    if format_dict_array[(idx+2)%nodes_length]['match_stroke_width']:
+                        is_match_pattern = True
+
+
                 # compare dot+3
                 if is_match_pattern:
                     fail_code = 400
@@ -222,6 +230,23 @@ class Rule(Rule.Rule):
                     if y_equal_check:
                         if abs(format_dict_array[(idx+0)%nodes_length]['y'] - format_dict_array[(idx-3+nodes_length)%nodes_length]['y']) < NEXT_HORIZONTAL_LINE_Y_ACCURACY:
                             is_match_pattern = False
+
+                # fix 霞 誤拔問題。
+                if is_match_pattern:
+                    fail_code = 900
+                    left_height = format_dict_array[(idx+3+nodes_length)%nodes_length]['distance']
+                    right_height = format_dict_array[(idx+1+nodes_length)%nodes_length]['distance'] + format_dict_array[(idx-1+nodes_length)%nodes_length]['distance'] + format_dict_array[(idx-3+nodes_length)%nodes_length]['distance']
+                    if left_height > right_height:
+                        if format_dict_array[(idx-1+nodes_length)%nodes_length]['x_equal_fuzzy']:
+                            if format_dict_array[(idx-2+nodes_length)%nodes_length]['y_equal_fuzzy']:
+                                if format_dict_array[(idx-3+nodes_length)%nodes_length]['x_equal_fuzzy']:
+                                    if format_dict_array[(idx-4+nodes_length)%nodes_length]['y_equal_fuzzy']:
+                                        if format_dict_array[(idx-2+nodes_length)%nodes_length]['distance'] > format_dict_array[(idx-1+nodes_length)%nodes_length]['distance']:
+                                            if format_dict_array[(idx-2+nodes_length)%nodes_length]['distance'] > format_dict_array[(idx-3+nodes_length)%nodes_length]['distance']:
+                                                if abs(format_dict_array[(idx+0)%nodes_length]['x'] - format_dict_array[(idx-1+nodes_length)%nodes_length]['x']) <= 3:
+                                                    if abs(format_dict_array[(idx+1)%nodes_length]['x'] - format_dict_array[(idx-2+nodes_length)%nodes_length]['x']) <= 3:
+                                                        if abs(format_dict_array[(idx+1)%nodes_length]['x'] - format_dict_array[(idx-3+nodes_length)%nodes_length]['x']) <= 3:
+                                                            is_match_pattern = False
 
                 if is_debug_mode:
                     if not is_match_pattern:

@@ -2,12 +2,14 @@
 #encoding=utf-8
 
 class TtfConfig():
-    VERSION = "1.030"
+    VERSION = "1.040"
     PROCESS_MODE = "SANS"
 
     STYLE_INDEX = 4
     STYLE_ARRAY = ["Black","Bold","Medium","Regular","DemiLight","Light","Thin"]
     STYLE=STYLE_ARRAY[STYLE_INDEX]
+
+    DEFAULT_COORDINATE_VALUE = -9999
 
     # for Regular
     #STROKE_MAX = 84

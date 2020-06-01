@@ -47,7 +47,7 @@ class Rule(Rule.Rule):
                 #is_debug_mode = True
 
                 if is_debug_mode:
-                    debug_coordinate_list = [[915,791]]
+                    debug_coordinate_list = [[494,271]]
                     if not([format_dict_array[idx]['x'],format_dict_array[idx]['y']] in debug_coordinate_list):
                         continue
 
@@ -84,6 +84,13 @@ class Rule(Rule.Rule):
                         if format_dict_array[(idx+1)%nodes_length]['x_direction'] < 0:
                            is_match_pattern = True
 
+                # dot# 1 match stroke width
+                if is_match_pattern:
+                    fail_code = 210
+                    is_match_pattern = False
+                    if format_dict_array[(idx+1)%nodes_length]['match_stroke_width']:
+                        is_match_pattern = True
+
                 # compare dot+2
                 if is_match_pattern:
                     fail_code = 300
@@ -98,9 +105,48 @@ class Rule(Rule.Rule):
                     fail_code = 400
                     is_match_pattern = False
                     # only go left.
-                    if format_dict_array[(idx+3)%nodes_length]['y_equal_fuzzy']:
-                        if format_dict_array[(idx+3)%nodes_length]['x_direction'] < 0:
+                    if format_dict_array[(idx+3)%nodes_length]['x_direction'] < 0:
+                        fail_code = 410
+                        if format_dict_array[(idx+3)%nodes_length]['y_equal_fuzzy']:
                            is_match_pattern = True
+                        else:
+                            # 替「㟝」增加例外。
+                            fail_code = 420
+                            distance = format_dict_array[(idx+3)%nodes_length]['distance']
+                            EQUAL_ACCURACY = self.config.EQUAL_ACCURACY_PERCENT * distance
+                            if format_dict_array[(idx-1+nodes_length)%nodes_length]['y_equal_fuzzy']:
+                                fail_code = 430
+                                if format_dict_array[(idx-1+nodes_length)%nodes_length]['x_direction'] > 0:
+                                    fail_code = 431
+                                    if format_dict_array[(idx+5+nodes_length)%nodes_length]['y_equal_fuzzy']:
+                                        fail_code = 432
+                                        if format_dict_array[(idx+5+nodes_length)%nodes_length]['x_direction'] > 0:
+                                            fail_code = 433
+                                            if format_dict_array[(idx+4+nodes_length)%nodes_length]['x_equal_fuzzy']:
+                                                fail_code = 434
+                                                if format_dict_array[(idx+4+nodes_length)%nodes_length]['y_direction'] > 0:
+                                                    fail_code = 435
+                                                    if format_dict_array[(idx+0+nodes_length)%nodes_length]['distance'] > self.config.STROKE_MAX:
+                                                        fail_code = 436
+                                                        if format_dict_array[(idx+3+nodes_length)%nodes_length]['distance'] > self.config.STROKE_MAX:
+                                                            fail_code = 437
+                                                            if format_dict_array[(idx+4+nodes_length)%nodes_length]['distance'] > self.config.STROKE_MAX:
+                                                                fail_code = 438
+                                                                # dot4, must large then dot3
+                                                                if format_dict_array[(idx+4+nodes_length)%nodes_length]['distance'] > format_dict_array[(idx+3+nodes_length)%nodes_length]['distance']:
+                                                                    fail_code = 439
+                                                                    # dot0 is the largest.
+                                                                    if format_dict_array[(idx+0+nodes_length)%nodes_length]['distance'] > format_dict_array[(idx+4+nodes_length)%nodes_length]['distance']:
+                                                                        fail_code = 440
+                                                                        # 放寬誤差, 使用 (318-74) * 0.08 = 19, 目標是要到 22
+                                                                        EQUAL_ACCURACY = 0.105 * distance
+                                
+
+                            if EQUAL_ACCURACY <= self.config.EQUAL_ACCURACY_MIN:
+                                EQUAL_ACCURACY = self.config.EQUAL_ACCURACY_MIN
+                            format_dict_array[idx]['y_equal_fuzzy']=False
+                            if abs(format_dict_array[(idx+3+nodes_length)%nodes_length]['y'] - format_dict_array[(idx+4+nodes_length)%nodes_length]['y']) <= EQUAL_ACCURACY:
+                                is_match_pattern=True
 
                 # compare 4,3
                 if is_match_pattern:
@@ -165,9 +211,30 @@ class Rule(Rule.Rule):
                         if abs(format_dict_array[(idx+8)%nodes_length]['y'] - format_dict_array[(idx+3)%nodes_length]['y']) < NEXT_HORIZONTAL_LINE_Y_ACCURACY:
                             is_match_pattern = False
 
-                # 增加例外的case.
+                # fix 霵的「耳」 誤拔問題。
                 if is_match_pattern:
-                    pass
+                    fail_code = 1000
+                    right_height = format_dict_array[(idx+0+nodes_length)%nodes_length]['distance']
+                    # left 只放二個短邊。
+                    left_height = format_dict_array[(idx+2+nodes_length)%nodes_length]['distance'] + format_dict_array[(idx+4+nodes_length)%nodes_length]['distance']
+                    bottom_length = format_dict_array[(idx+3+nodes_length)%nodes_length]['distance']
+                    if right_height > left_height and bottom_length > left_height:
+                        #print("1")
+                        if format_dict_array[(idx-1+nodes_length)%nodes_length]['y_equal_fuzzy']:
+                            #print("2")
+                            # 排除底為斜邊的「山」，
+                            if format_dict_array[(idx-1+nodes_length)%nodes_length]['x_direction'] < 0:
+                                is_match_pattern = False
+                        
+
+                if is_debug_mode:
+                    if not is_match_pattern:
+                        print("#", idx,": debug fail_code#1:", fail_code)
+                        pass
+                    else:
+                        print("match rule #1")
+                        print(idx,"debug rule#1:",format_dict_array[idx]['code'])
+                        pass
 
                 #print(idx,"fail code:", fail_code)
                 if is_match_pattern:
