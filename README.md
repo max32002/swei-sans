@@ -26,7 +26,6 @@
 ## 附註
 
 * 這不是一個專業的字型檔案。
-* 很多字還是可以看到思源黑體的的直角。
 * 由於小編對字體編碼方式完全不清楚，相較於原版的思源黑體，可能有掉一些符號或不常用的字。
 * 專業的網友 But Ko 幫忙指出問題：OS/2表是掛掉的，另外GSUB、GPOS、vmtx表都不見了，那應該所有直排、異體字選擇、kerning資訊都丟失了。（例如直排標點旋轉），在Adobe軟體裡可能會碰到無法預期的錯誤。
 * 演算黑科技將字體拔腳，請參考 /python/ 目錄下的腳本檔案。透過調整程式碼，也許也可以產生出新的有趣字型。目前的程式應該還有很多錯誤或需要再加強的地方。請先把要處理的字型，轉成 FontForge 的 sfdir, 再透過程式去處理產生出來的檔案。
@@ -42,6 +41,8 @@
     
 ## 相關網頁
 
+* 獅尾四季春字體 Swei Spring
+https://max-everyday.com/2020/04/swei-spring/
 * 獅尾半月字體 Swei Gothic
 https://max-everyday.com/2020/04/swei-half-moon/
 * 獅尾圓體 Swei Gothic
@@ -52,6 +53,8 @@ https://max-everyday.com/2020/03/swei-sans/
 https://max-everyday.com/2020/03/naikaifont/
 * 莫大毛筆字體 (Bakudai)
 https://max-everyday.com/2020/03/bakudaifont/
+* 正風毛筆字體 (MasaFont)
+https://max-everyday.com/2020/05/masafont/
 * 清松手寫體 (JasonHandWriting)
 https://jasonfonts.max-everyday.com/
 * 源泉圓體
