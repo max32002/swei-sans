@@ -47,7 +47,7 @@ class Rule(Rule.Rule):
                 #is_debug_mode = True
 
                 if is_debug_mode:
-                    debug_coordinate_list = [[494,271]]
+                    debug_coordinate_list = [[899,659]]
                     if not([format_dict_array[idx]['x'],format_dict_array[idx]['y']] in debug_coordinate_list):
                         continue
 
@@ -140,7 +140,7 @@ class Rule(Rule.Rule):
                                                                         fail_code = 440
                                                                         # 放寬誤差, 使用 (318-74) * 0.08 = 19, 目標是要到 22
                                                                         EQUAL_ACCURACY = 0.105 * distance
-                                
+
 
                             if EQUAL_ACCURACY <= self.config.EQUAL_ACCURACY_MIN:
                                 EQUAL_ACCURACY = self.config.EQUAL_ACCURACY_MIN
@@ -202,14 +202,34 @@ class Rule(Rule.Rule):
                             underground_distance = format_dict_array[(idx+3) % nodes_length]['x']-format_dict_array[(idx+4) % nodes_length]['x']
                             if underground_distance >= MORE_LEG_LENGTH_UNDERGROUND_LENGTH:
                                 if leg_percent < MORE_MAX_LEG_LENGTH_PERCENT:
-                                    is_match_pattern = True                
+                                    is_match_pattern = True
 
                 # fix 搏/博/㙛/捕 誤拔問題。
                 if is_match_pattern:
                     fail_code = 900
                     if format_dict_array[(idx+3)%nodes_length]['y_equal_fuzzy'] and format_dict_array[(idx+5)%nodes_length]['y_equal_fuzzy'] and format_dict_array[(idx+7)%nodes_length]['y_equal_fuzzy']:
-                        if abs(format_dict_array[(idx+8)%nodes_length]['y'] - format_dict_array[(idx+3)%nodes_length]['y']) < NEXT_HORIZONTAL_LINE_Y_ACCURACY:
-                            is_match_pattern = False
+                        fail_code = 910
+                        if format_dict_array[(idx+2)%nodes_length]['x_equal_fuzzy'] and format_dict_array[(idx+4)%nodes_length]['x_equal_fuzzy'] and format_dict_array[(idx+6)%nodes_length]['x_equal_fuzzy']:
+                            fail_code = 920
+                            if abs(format_dict_array[(idx+8)%nodes_length]['y'] - format_dict_array[(idx+3)%nodes_length]['y']) < NEXT_HORIZONTAL_LINE_Y_ACCURACY:
+                                fail_code = 930
+                                is_match_pattern = False
+
+                                # 在這情況下，希望可以拔掉「中甲」系列的小腳。
+                                if format_dict_array[(idx+2+nodes_length)%nodes_length]['distance'] <= 130:
+                                    fail_code = 940
+                                    if format_dict_array[(idx+4+nodes_length)%nodes_length]['distance'] >= 200:
+                                        fail_code = 950
+                                        if format_dict_array[(idx+4+nodes_length)%nodes_length]['y_direction'] < 0 and format_dict_array[(idx+6+nodes_length)%nodes_length]['y_direction'] > 0:
+                                            fail_code = 960
+                                            # almost the same length.
+                                            if abs(format_dict_array[(idx+4+nodes_length)%nodes_length]['distance'] - format_dict_array[(idx+6+nodes_length)%nodes_length]['distance']) < 10:
+                                                fail_code = 970
+                                                if format_dict_array[(idx-1+nodes_length)%nodes_length]['x_direction'] > 0:
+                                                    fail_code = 980
+                                                    if format_dict_array[(idx-1+nodes_length)%nodes_length]['y_equal_fuzzy']:
+                                                        if abs(format_dict_array[(idx+1)%nodes_length]['y'] - format_dict_array[(idx+5+nodes_length)%nodes_length]['y']) > 130:
+                                                            is_match_pattern = True
 
                 # fix 霵的「耳」 誤拔問題。
                 if is_match_pattern:
@@ -218,14 +238,29 @@ class Rule(Rule.Rule):
                     # left 只放二個短邊。
                     left_height = format_dict_array[(idx+2+nodes_length)%nodes_length]['distance'] + format_dict_array[(idx+4+nodes_length)%nodes_length]['distance']
                     bottom_length = format_dict_array[(idx+3+nodes_length)%nodes_length]['distance']
-                    if right_height > left_height and bottom_length > left_height:
-                        #print("1")
-                        if format_dict_array[(idx-1+nodes_length)%nodes_length]['y_equal_fuzzy']:
-                            #print("2")
-                            # 排除底為斜邊的「山」，
-                            if format_dict_array[(idx-1+nodes_length)%nodes_length]['x_direction'] < 0:
+                    # 第一段腿長，太長不拔。
+                    if format_dict_array[(idx+2+nodes_length)%nodes_length]['distance'] >= 150:
+                        fail_code = 1010
+                        is_match_pattern = False
+                    else:
+                        # 第2段腿長，太短&向上時不拔。
+                        if format_dict_array[(idx+4+nodes_length)%nodes_length]['distance'] <= 150:
+                            fail_code = 1020
+                            # 但向下時要拔
+                            if format_dict_array[(idx+4+nodes_length)%nodes_length]['y_direction'] > 0:
                                 is_match_pattern = False
-                        
+                        else:
+                            fail_code = 1030
+                            if right_height > left_height and bottom_length > left_height:
+                                fail_code = 1040
+                                #print("1")
+                                if format_dict_array[(idx-1+nodes_length)%nodes_length]['y_equal_fuzzy']:
+                                    fail_code = 1050
+                                    #print("2")
+                                    # 排除底為斜邊的「山」，
+                                    if format_dict_array[(idx-1+nodes_length)%nodes_length]['x_direction'] < 0:
+                                        is_match_pattern = False
+
 
                 if is_debug_mode:
                     if not is_match_pattern:

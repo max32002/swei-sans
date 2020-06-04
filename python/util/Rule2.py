@@ -62,7 +62,7 @@ class Rule(Rule.Rule):
                 #is_debug_mode = True
 
                 if is_debug_mode:
-                    debug_coordinate_list = [[912,-38]]
+                    debug_coordinate_list = [[459,248]]
                     if not([format_dict_array[idx]['x'],format_dict_array[idx]['y']] in debug_coordinate_list):
                         continue
 
@@ -146,6 +146,7 @@ class Rule(Rule.Rule):
                 previous_index = (idx+nodes_length-1) % nodes_length
                 previous_x = format_dict_array[previous_index]['x']
                 previous_y = format_dict_array[previous_index]['y']
+                #print("previous_x,y:", previous_x, previous_y)
 
                 previous_2index = (idx+nodes_length-2) % nodes_length
                 previous_2x = format_dict_array[previous_2index]['x']
@@ -160,8 +161,12 @@ class Rule(Rule.Rule):
                     body_length = abs(format_dict_array[(idx+4) % nodes_length]['y']-format_dict_array[(idx+3) % nodes_length]['y'])
                     leg_length = abs(format_dict_array[(idx+2) % nodes_length]['y']-format_dict_array[(idx+1) % nodes_length]['y'])
                     if body_length > 0:
+                        fail_code = 610
+
                         leg_percent = int((leg_length/body_length)*100)
                         if leg_percent > MAX_LEG_LENGTH_PERCENT:
+                            fail_code = 620
+
                             #print("Fail leg_percent:", leg_percent)
                             #print("neighbor_height:", neighbor_height)
                             #print("leg_height:", leg_length)
@@ -171,11 +176,13 @@ class Rule(Rule.Rule):
                             # 當遇到口造形時，應該直接拔掉。
                             # PS: 一定要加這一個前提，不然 門左邊會消失. 
                             if leg_percent <= MORE_MAX_LEG_LENGTH_PERCENT:
+                                fail_code = 630
                                 if abs(body_length - (neighbor_height+leg_length)) <= 2:
                                     is_match_pattern = True
 
                             # from top go buttom.
                             if neighbor_height > 0:
+                                fail_code = 640
                                 if neighbor_height > MORE_LEG_LENGTH_NEIGHBOR_HEIGHT:
                                     # 右側高度夠長，允論較長的百分比。
                                     if leg_percent <= MORE_MAX_LEG_LENGTH_PERCENT:
@@ -227,10 +234,24 @@ class Rule(Rule.Rule):
                             if format_dict_array[(idx-2+nodes_length)%nodes_length]['y_equal_fuzzy']:
                                 if format_dict_array[(idx-4+nodes_length)%nodes_length]['y_equal_fuzzy']:
                                     y_equal_check = True
+                    
                     if y_equal_check:
+                        fail_code = 810
                         if abs(format_dict_array[(idx+0)%nodes_length]['y'] - format_dict_array[(idx-3+nodes_length)%nodes_length]['y']) < NEXT_HORIZONTAL_LINE_Y_ACCURACY:
                             is_match_pattern = False
 
+                            # 在這情況下，希望可以拔掉「中甲」系列的小腳。
+                            fail_code = 820
+                            if format_dict_array[(idx+1+nodes_length)%nodes_length]['distance'] <= 130:
+                                fail_code = 830
+                                if format_dict_array[(idx-1+nodes_length)%nodes_length]['distance'] >= 200:
+                                    fail_code = 840
+                                    if format_dict_array[(idx+4)%nodes_length]['y_equal_fuzzy']:
+                                        fail_code = 850
+                                        if format_dict_array[(idx+4)%nodes_length]['x_direction'] > 0:
+                                            fail_code = 860
+                                            if abs(format_dict_array[(idx+2)%nodes_length]['y'] - format_dict_array[(idx-1+nodes_length)%nodes_length]['y']) > 130:
+                                                is_match_pattern = True
                 # fix 霞 誤拔問題。
                 if is_match_pattern:
                     fail_code = 900
