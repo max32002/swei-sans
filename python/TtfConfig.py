@@ -2,7 +2,7 @@
 #encoding=utf-8
 
 class TtfConfig():
-    VERSION = "1.041"
+    VERSION = "1.042"
     PROCESS_MODE = "SANS"
 
     STYLE_INDEX = 4
@@ -29,6 +29,9 @@ class TtfConfig():
     EQUAL_ACCURACY_MIN = 3
     EQUAL_ACCURACY_PERCENT = 0.08
 
+    # unicode in field
+    # 1 to 3
+    UNICODE_FIELD = 2
 
     def hello(self):
         print("world!")

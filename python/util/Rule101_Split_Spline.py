@@ -5,8 +5,10 @@ from . import spline_util
 from . import Rule
 
 # RULE # 101
-# 簡化 c 為 l
+# 切割spline
 # PS: 因為 array size change, so need redo.
+# PS: 這個已知，會造成錯誤，當新切出來的區塊為clockwise, 有問題的字，「躉」uni8E89. 
+#      解法：需要先判斷新的二點之間，為 in stroke.
 class Rule(Rule.Rule):
     def __init__(self):
         pass
@@ -14,7 +16,7 @@ class Rule(Rule.Rule):
     def apply(self, spline_dict, resume_idx):
         redo_travel=False
 
-        TOO_CLOSE_DISTANCE = 20
+        TOO_CLOSE_DISTANCE = 13
 
         # clone
         format_dict_array=[]
@@ -66,16 +68,20 @@ class Rule(Rule.Rule):
 
                     new_format_dict_array.append(format_dict_array[idx_j_formated].copy())
 
-                    # skip too sibling
+                    # skip too close sibling
                     if idx_j_formated == idx:
                         continue
                     if idx_j_formated == (idx + 1) % nodes_length:
                         continue
                     if idx_j_formated == (idx + 2) % nodes_length:
                         continue
+                    if idx_j_formated == (idx + 3) % nodes_length:
+                        continue
                     if idx_j_formated == (idx + nodes_length - 1) % nodes_length:
                         continue
                     if idx_j_formated == (idx + nodes_length - 2) % nodes_length:
+                        continue
+                    if idx_j_formated == (idx + nodes_length - 3) % nodes_length:
                         continue
 
                     compare_distance = spline_util.get_distance(x0,y0,x1,y1)
@@ -95,9 +101,8 @@ class Rule(Rule.Rule):
 
 
                 if is_match_pattern:
-                    #print("match rule #9")
+                    #print("match rule Split Spline!")
                     #print(idx,": debug Rule#101:",format_dict_array[idx]['code'])
-
                     #print("new dict array length:", len(new_format_dict_array))
                     #print("new dict array:", new_format_dict_array)
 

@@ -5,12 +5,32 @@ from . import spline_util
 
 class Rule():
     config = None
+    unicode_int = -1
 
     def __init__(self):
         pass
 
     def assign_config(self, config):
         self.config = config
+
+    def assign_unicode(self, val):
+        self.unicode_int = val
+
+    # 0-24F
+    def is_Latin(self):
+        ret = False
+        if self.unicode_int > 0:
+            if self.unicode_int <= 591:
+                ret = True
+        return ret
+
+    # Hangul Syllables, U+AC00 - U+D7AF[3]
+    def is_Hangul(self):
+        ret = False
+        if self.unicode_int > 0:
+            if self.unicode_int >= 44032 and self.unicode_int <= 55215:
+                ret = True
+        return ret
 
     def reset_first_point(self, format_dict_array, spline_dict):
         spline_x = spline_dict['dots'][0]['x']
@@ -35,11 +55,13 @@ class Rule():
             #print("not match!")
             #print("m old_code_string:", spline_code)
             
-            # try to keep more information in spline.
             old_code_array = spline_code.split(' ')
             old_code_array[0] = str(last_x)
             old_code_array[1] = str(last_y)
-            new_code = ' '.join(old_code_array)
+            
+            # keep extra infomation cause more error.
+            #new_code = ' '.join(old_code_array)
+            new_code = "%d %d m 1\n" % (last_x, last_y)
 
             spline_x = last_x
             spline_y = last_y
@@ -55,7 +77,6 @@ class Rule():
         format_dict_array.insert(0,dot_dict)
         #print("\n\nafter:", format_dict_array)
         spline_dict['dots'] = format_dict_array
-
 
     def caculate_distance(self, format_dict_array):
         nodes_length = len(format_dict_array)

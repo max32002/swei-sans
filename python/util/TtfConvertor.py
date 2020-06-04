@@ -38,7 +38,6 @@ class Convertor():
 
         stroke_index = 0
 
-
         for x_line in myfile:
             if code_encoding_string == x_line[:code_encoding_string_length]:
                 encoding_string = x_line[code_encoding_string_length:]
@@ -98,13 +97,18 @@ class Convertor():
 
                         x_line_array[0]=str(x)
                         x_line_array[1]=str(y)
+                        new_code = "%d %d m 1\n" % (x,y)
 
                     if t=='l':
                         x=int(float(x_line_array[1]))
                         y=int(float(x_line_array[2]))
+                        l_type = x_line_array[4].strip()
+                        if ',' in l_type:
+                            l_type = l_type.split(',')[0]
 
                         x_line_array[1]=str(x)
                         x_line_array[2]=str(y)
+                        new_code = " %d %d l %s\n" % (x,y,l_type)
 
                     if t=='c':
                         if len(x_line_array) >=7:
@@ -122,10 +126,17 @@ class Convertor():
                             x_line_array[5]=str(x)
                             x_line_array[6]=str(y)
 
-                    #dot_dict['code'] = x_line
-                    new_code = ' '.join(x_line_array)
+                            c_type = x_line_array[8].strip()
+                            if ',' in c_type:
+                                c_type = c_type.split(',')[0]
+
+                            new_code = " %d %d %d %d %d %d c %s\n" % (x1,y1,x2,y2,x,y,c_type)
+
                     #print("add to code:", x_line)
-                    #print("new code:", new_code)
+                    #dot_dict['code'] = x_line
+                    # keep extra infomation cause more error.
+                    #new_code = ' '.join(x_line_array)
+                    #print("new_code:", new_code)
                 dot_dict['code'] = new_code
 
 
@@ -200,9 +211,18 @@ class Convertor():
         encoding_string = None
         stroke_dict, encoding_string = self.load_to_memory(filename_input)
  
+        unicode_int = -1
+        if not encoding_string is None:
+            if ' ' in encoding_string:
+                encoding_string_array = encoding_string.split(' ')
+                unicode_string = encoding_string_array[self.config.UNICODE_FIELD-1]
+                if len(unicode_string) > 0:
+                    unicode_int = int(unicode_string)
+
         self.sp.assign_config(self.config)
 
-        ret, stroke_dict = self.sp.trace(stroke_dict)
+        #print("unicode_int:", unicode_int)
+        ret, stroke_dict = self.sp.trace(stroke_dict, unicode_int)
 
         if ret:
             if not stroke_dict is None:

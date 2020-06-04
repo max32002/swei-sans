@@ -30,7 +30,7 @@ class Spline():
     def hello(self):
         print("world")
 
-    def trace(self, stroke_dict):
+    def trace(self, stroke_dict, unicode_int):
         #print("trace")
         #print(stroke_dict)
         is_modified = False
@@ -38,7 +38,7 @@ class Spline():
         bmp_image = None
         y_offset = 880
 
-        self.preprocess(stroke_dict)
+        self.preprocess(stroke_dict, unicode_int)
 
         for key in stroke_dict.keys():
             spline_dict = stroke_dict[key]
@@ -48,9 +48,9 @@ class Spline():
             if True:
                 clockwise = self.check_clockwise(spline_dict)
                 #print("clockwise:", clockwise)
-                self.normalize(stroke_dict, key, bmp_image, y_offset)
+                self.normalize(stroke_dict, key, unicode_int, bmp_image, y_offset)
                 if clockwise:
-                    trace_result, spline_dict = self.trace_nodes_in_strok(spline_dict)
+                    trace_result, spline_dict = self.trace_nodes_in_strok(spline_dict, unicode_int)
                     if trace_result:
                         is_modified = True
 
@@ -108,7 +108,7 @@ class Spline():
         spline_dict["left"] = margin_left
         spline_dict["right"] = margin_right
 
-    def split_spline(self, stroke_dict):
+    def split_spline(self, stroke_dict, unicode_int):
         redo_split = False
         from . import Rule101_Split_Spline
 
@@ -117,7 +117,7 @@ class Spline():
             spline_dict = stroke_dict[key]
             #print("key:", key, 'code:', spline_dict['dots'][0])
             # for debug
-            #if key==5:
+            #if key==7:
             if True:
                 clockwise = self.check_clockwise(spline_dict)
                 #print("clockwise:", clockwise)
@@ -134,6 +134,7 @@ class Spline():
                     ru101 = None
 
                     if redo_travel:
+                        #print("split occur")
                         if new_format_dict_array != None:
                             if len(new_format_dict_array) > 0:
                                 new_key_index = len(stroke_dict)+1
@@ -148,7 +149,7 @@ class Spline():
 
         return redo_split
 
-    def preprocess(self, stroke_dict):
+    def preprocess(self, stroke_dict, unicode_int):
         MAX_SPLIT_CONNT = 100
 
         idx=-1
@@ -156,11 +157,11 @@ class Spline():
         redo_split=True    # Enable
         while redo_split:
             idx+=1
-            redo_split=self.split_spline(stroke_dict)
+            redo_split=self.split_spline(stroke_dict, unicode_int)
             if idx >= MAX_SPLIT_CONNT:
                 redo_split = False
 
-    def normalize(self, stroke_dict, key, bmp_image, y_offset):
+    def normalize(self, stroke_dict, key, unicode_int, bmp_image, y_offset):
         from . import Rule102_Clean_Noise
         ru102=Rule102_Clean_Noise.Rule()
         ru102.assign_config(self.config)
@@ -213,16 +214,23 @@ class Spline():
 
         return spline_dict
 
-    def trace_nodes_in_strok(self, spline_dict):
+    def trace_nodes_in_strok(self, spline_dict, unicode_int):
         is_modified = False
 
         from . import Rule1
         ru1=Rule1.Rule()
         ru1.assign_config(self.config)
+        ru1.assign_unicode(unicode_int)
 
         from . import Rule2
         ru2=Rule2.Rule()
         ru2.assign_config(self.config)
+        ru2.assign_unicode(unicode_int)
+
+        from . import Rule3_10K
+        ru3=Rule3_10K.Rule()
+        ru3.assign_config(self.config)
+        ru3.assign_unicode(unicode_int)
 
         self.detect_margin(spline_dict)
 
@@ -247,5 +255,16 @@ class Spline():
             if redo_travel:
                 is_modified = True
         ru2 = None
+
+        # start to travel nodes for [RULE #3]
+        # 
+        idx=-1
+        redo_travel=False   # Disable
+        redo_travel=True    # Enable
+        while redo_travel:
+            redo_travel,idx=ru3.apply(spline_dict, idx)
+            if redo_travel:
+                is_modified = True
+        ru3 = None
 
         return is_modified, spline_dict

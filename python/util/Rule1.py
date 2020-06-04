@@ -17,6 +17,11 @@ class Rule(Rule.Rule):
         redo_travel=False
 
         MAX_LEG_LENGTH_PERCENT=21
+
+        # 非中文的字，不需要去處理。
+        if self.is_Latin() or self.is_Hangul():
+            MAX_LEG_LENGTH_PERCENT=13
+
         MAX_LEFT_MOUNTAIN_HEIGHT = 30   # for 山 & 出 的橫線。獅尾黑體
         LINE_ACCURACY=3
 
@@ -35,9 +40,11 @@ class Rule(Rule.Rule):
         #print("orig nodes_length:", len(spline_dict['x']))
         #print("format nodes_length:", nodes_length)
 
+        travel_enable = True
+
         rule_need_lines = 5
         fail_code = -1
-        if nodes_length >= rule_need_lines:
+        if nodes_length >= rule_need_lines and travel_enable:
             for idx in range(nodes_length):
                 if idx <= resume_idx:
                     # skip traveled nodes.
@@ -47,14 +54,14 @@ class Rule(Rule.Rule):
                 #is_debug_mode = True
 
                 if is_debug_mode:
-                    debug_coordinate_list = [[899,659]]
+                    debug_coordinate_list = [[930,253]]
                     if not([format_dict_array[idx]['x'],format_dict_array[idx]['y']] in debug_coordinate_list):
                         continue
 
                     print("="*30)
                     print("index:", idx)
                     for debug_idx in range(8):
-                        print(debug_idx-2,": values for rule#2:",format_dict_array[(idx+debug_idx+nodes_length-2)%nodes_length]['code'],'-(',format_dict_array[(idx+debug_idx+nodes_length-2)%nodes_length]['distance'],')')
+                        print(debug_idx-2,": values#1:",format_dict_array[(idx+debug_idx+nodes_length-2)%nodes_length]['code'],'-(',format_dict_array[(idx+debug_idx+nodes_length-2)%nodes_length]['distance'],')')
 
                 # begin travel.
                 is_match_pattern = True
@@ -188,21 +195,47 @@ class Rule(Rule.Rule):
                             print(t_idx, "code:",format_dict_array[(idx+t_idx)%nodes_length]['code'])
 
                 # check length
+                body_length = format_dict_array[(idx+0+nodes_length)%nodes_length]['distance']
+                leg_length = abs(format_dict_array[(idx+2) % nodes_length]['y']-format_dict_array[(idx+3) % nodes_length]['y'])
                 if is_match_pattern:
                     fail_code = 800
-                    body_length = abs(format_dict_array[(idx+1) % nodes_length]['y']-format_dict_array[(idx+0) % nodes_length]['y'])
-                    leg_length = abs(format_dict_array[(idx+2) % nodes_length]['y']-format_dict_array[(idx+3) % nodes_length]['y'])
-                    if body_length > 0:
-                        leg_percent = int((leg_length/body_length)*100)
-                        if leg_percent > MAX_LEG_LENGTH_PERCENT:
-                            #print("leg_percent:",leg_percent)
-                            is_match_pattern = False
+                    # 身體太短，排除。
+                    if body_length < 30:
+                        is_match_pattern = False
 
-                            # but.
-                            underground_distance = format_dict_array[(idx+3) % nodes_length]['x']-format_dict_array[(idx+4) % nodes_length]['x']
-                            if underground_distance >= MORE_LEG_LENGTH_UNDERGROUND_LENGTH:
-                                if leg_percent < MORE_MAX_LEG_LENGTH_PERCENT:
-                                    is_match_pattern = True
+                if is_match_pattern:
+                    fail_code = 801
+                    # 腿太長，排除。
+                    if leg_length >= 120:
+                        is_match_pattern = False
+                
+                if is_match_pattern:
+                    fail_code = 810
+                    # 腿比身還長，排除。
+                    if body_length < leg_length:
+                        is_match_pattern = False
+
+                if is_match_pattern:
+                    fail_code = 830
+
+                    leg_percent = int((leg_length/body_length)*100)
+                    if is_debug_mode:
+                        print("body_height:", body_length)
+                        print("leg_length:", leg_length)
+                        print("leg_percent:", leg_percent)
+                        print("MAX_LEG_LENGTH_PERCENT:", MAX_LEG_LENGTH_PERCENT)
+                        print("MORE_LEG_LENGTH_UNDERGROUND_LENGTH:", MORE_LEG_LENGTH_UNDERGROUND_LENGTH)
+                        print("MORE_MAX_LEG_LENGTH_PERCENT:", MORE_MAX_LEG_LENGTH_PERCENT)
+
+                    if leg_percent > MAX_LEG_LENGTH_PERCENT:
+                        #print("leg_percent:",leg_percent)
+                        is_match_pattern = False
+
+                        # but.
+                        underground_distance = format_dict_array[(idx+3) % nodes_length]['x']-format_dict_array[(idx+4) % nodes_length]['x']
+                        if underground_distance >= MORE_LEG_LENGTH_UNDERGROUND_LENGTH:
+                            if leg_percent < MORE_MAX_LEG_LENGTH_PERCENT:
+                                is_match_pattern = True
 
                 # fix 搏/博/㙛/捕 誤拔問題。
                 if is_match_pattern:
@@ -215,21 +248,26 @@ class Rule(Rule.Rule):
                                 fail_code = 930
                                 is_match_pattern = False
 
-                                # 在這情況下，希望可以拔掉「中甲」系列的小腳。
-                                if format_dict_array[(idx+2+nodes_length)%nodes_length]['distance'] <= 130:
-                                    fail_code = 940
-                                    if format_dict_array[(idx+4+nodes_length)%nodes_length]['distance'] >= 200:
-                                        fail_code = 950
-                                        if format_dict_array[(idx+4+nodes_length)%nodes_length]['y_direction'] < 0 and format_dict_array[(idx+6+nodes_length)%nodes_length]['y_direction'] > 0:
-                                            fail_code = 960
-                                            # almost the same length.
-                                            if abs(format_dict_array[(idx+4+nodes_length)%nodes_length]['distance'] - format_dict_array[(idx+6+nodes_length)%nodes_length]['distance']) < 10:
-                                                fail_code = 970
-                                                if format_dict_array[(idx-1+nodes_length)%nodes_length]['x_direction'] > 0:
-                                                    fail_code = 980
-                                                    if format_dict_array[(idx-1+nodes_length)%nodes_length]['y_equal_fuzzy']:
-                                                        if abs(format_dict_array[(idx+1)%nodes_length]['y'] - format_dict_array[(idx+5+nodes_length)%nodes_length]['y']) > 130:
-                                                            is_match_pattern = True
+                    if is_match_pattern == False:
+                        # 在被排除的這情況下，希望可以拔掉「中甲」系列的小腳。
+                        if format_dict_array[(idx+2+nodes_length)%nodes_length]['distance'] <= 120:
+                            fail_code = 940
+                            # 中/甲，是長的，但蹿的「串」是短的。
+                            if format_dict_array[(idx+4+nodes_length)%nodes_length]['distance'] >= 120:
+                                fail_code = 941
+                                if format_dict_array[(idx+4+nodes_length)%nodes_length]['distance'] >= (2 * format_dict_array[(idx+2+nodes_length)%nodes_length]['distance']):
+                                    fail_code = 950
+                                    if format_dict_array[(idx+4+nodes_length)%nodes_length]['y_direction'] < 0 and format_dict_array[(idx+6+nodes_length)%nodes_length]['y_direction'] > 0:
+                                        fail_code = 960
+                                        # almost the same length.
+                                        if abs(format_dict_array[(idx+4+nodes_length)%nodes_length]['distance'] - format_dict_array[(idx+6+nodes_length)%nodes_length]['distance']) < 10:
+                                            fail_code = 970
+                                            if format_dict_array[(idx-1+nodes_length)%nodes_length]['x_direction'] > 0:
+                                                fail_code = 980
+                                                if format_dict_array[(idx-1+nodes_length)%nodes_length]['y_equal_fuzzy']:
+                                                    fail_code = 990
+                                                    if abs(format_dict_array[(idx+1)%nodes_length]['y'] - format_dict_array[(idx+5+nodes_length)%nodes_length]['y']) > 70:
+                                                        is_match_pattern = True
 
                 # fix 霵的「耳」 誤拔問題。
                 if is_match_pattern:
@@ -243,12 +281,14 @@ class Rule(Rule.Rule):
                         fail_code = 1010
                         is_match_pattern = False
                     else:
-                        # 第2段腿長，太短&向上時不拔。
-                        if format_dict_array[(idx+4+nodes_length)%nodes_length]['distance'] <= 150:
-                            fail_code = 1020
-                            # 但向下時要拔
-                            if format_dict_array[(idx+4+nodes_length)%nodes_length]['y_direction'] > 0:
-                                is_match_pattern = False
+                        # 第2段腿長(+4)，較短時。
+                        if format_dict_array[(idx+4+nodes_length)%nodes_length]['distance'] < 150:
+                            if format_dict_array[(idx+4+nodes_length)%nodes_length]['match_stroke_width']:
+                                fail_code = 1020
+                                # 向上時，因為符合「咠」的「耳」的條件。
+                                # 進行排除
+                                if format_dict_array[(idx+4+nodes_length)%nodes_length]['y_direction'] > 0:
+                                    is_match_pattern = False
                         else:
                             fail_code = 1030
                             if right_height > left_height and bottom_length > left_height:
