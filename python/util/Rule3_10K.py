@@ -41,7 +41,7 @@ class Rule(Rule.Rule):
                 #is_debug_mode = True
 
                 if is_debug_mode:
-                    debug_coordinate_list = [[192,430]]
+                    debug_coordinate_list = [[399,355]]
                     if not([format_dict_array[idx]['x'],format_dict_array[idx]['y']] in debug_coordinate_list):
                         continue
 
@@ -162,7 +162,7 @@ class Rule(Rule.Rule):
                     # only go right.
                     if format_dict_array[(idx+9)%nodes_length]['y_equal_fuzzy']:
                         if format_dict_array[(idx+9)%nodes_length]['x_direction'] > 0:
-                            if format_dict_array[(idx+9)%nodes_length]['distance'] > 200:
+                            if format_dict_array[(idx+9)%nodes_length]['distance'] > 150:
                                 is_match_pattern = True
 
                 # compare dot-1
@@ -172,7 +172,7 @@ class Rule(Rule.Rule):
                     # only go right.
                     if format_dict_array[(idx+nodes_length-1)%nodes_length]['y_equal_fuzzy']:
                         if format_dict_array[(idx+nodes_length-1)%nodes_length]['x_direction'] < 0:
-                            if format_dict_array[(idx+nodes_length-1)%nodes_length]['distance'] > 200:
+                            if format_dict_array[(idx+nodes_length-1)%nodes_length]['distance'] > 150:
                                 is_match_pattern = True
 
                 if is_debug_mode:
