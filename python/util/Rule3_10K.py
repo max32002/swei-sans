@@ -162,7 +162,8 @@ class Rule(Rule.Rule):
                     # only go right.
                     if format_dict_array[(idx+9)%nodes_length]['y_equal_fuzzy']:
                         if format_dict_array[(idx+9)%nodes_length]['x_direction'] > 0:
-                            if format_dict_array[(idx+9)%nodes_length]['distance'] > 150:
+                            # for 「離」，縮短距離。
+                            if format_dict_array[(idx+9)%nodes_length]['distance'] > 60:
                                 is_match_pattern = True
 
                 # compare dot-1
@@ -172,8 +173,19 @@ class Rule(Rule.Rule):
                     # only go right.
                     if format_dict_array[(idx+nodes_length-1)%nodes_length]['y_equal_fuzzy']:
                         if format_dict_array[(idx+nodes_length-1)%nodes_length]['x_direction'] < 0:
-                            if format_dict_array[(idx+nodes_length-1)%nodes_length]['distance'] > 150:
+                            # for 「離」，縮短距離。
+                            if format_dict_array[(idx+nodes_length-1)%nodes_length]['distance'] > 60:
                                 is_match_pattern = True
+
+                # compare dot-2
+                if is_match_pattern:
+                    fail_code = 310
+                    is_match_pattern = False
+                    # only go bottom.
+                    # 滿神奇的，居然可以和「嬤」裡的「木」吻合。
+                    if format_dict_array[(idx+nodes_length-2)%nodes_length]['y_direction'] > 0:
+                        if format_dict_array[(idx+nodes_length-2)%nodes_length]['distance'] > 80:
+                            is_match_pattern = True
 
                 if is_debug_mode:
                     if not is_match_pattern:

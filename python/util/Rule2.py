@@ -29,7 +29,8 @@ class Rule(Rule.Rule):
 
         # 如果對面高於 300，則支援長尾巴。 for「﨑」裡的口.
         # BUT: 這個在 Thin weight 裡是 361-125=236 超短！
-        MORE_LEG_LENGTH_NEIGHBOR_HEIGHT = 220
+        #    : 在「闢」的口，右側是 212
+        MORE_LEG_LENGTH_NEIGHBOR_HEIGHT = 205
 
         MORE_MAX_LEG_LENGTH_PERCENT=26
         
@@ -77,7 +78,7 @@ class Rule(Rule.Rule):
                 #is_debug_mode = True
 
                 if is_debug_mode:
-                    debug_coordinate_list = [[428,3]]
+                    debug_coordinate_list = [[477,-6]]
                     if not([format_dict_array[idx]['x'],format_dict_array[idx]['y']] in debug_coordinate_list):
                         continue
 
@@ -130,7 +131,6 @@ class Rule(Rule.Rule):
                     if format_dict_array[(idx+2)%nodes_length]['match_stroke_width']:
                         is_match_pattern = True
 
-
                 # compare dot+3
                 if is_match_pattern:
                     fail_code = 400
@@ -140,12 +140,22 @@ class Rule(Rule.Rule):
                         if format_dict_array[(idx+3)%nodes_length]['y_direction'] > 0:
                            is_match_pattern = True
 
+
+                # compare dot-1
+                if is_match_pattern:
+                    fail_code = 410
+                    is_match_pattern = False
+                    # only go bottom.
+                    if format_dict_array[(idx-1+nodes_length)%nodes_length]['x_equal_fuzzy']:
+                        if format_dict_array[(idx-1+nodes_length)%nodes_length]['y_direction'] < 0:
+                           is_match_pattern = True
+
                 # must match x axis same direction.
                 if is_match_pattern:
                     fail_code = 500
                     x_array = []
                     y_array = []
-                    for t_idx in range(rule_need_lines):
+                    for t_idx in range(4):
                         y_array.append(format_dict_array[(idx+t_idx) % nodes_length]['y'])
                         x_array.append(format_dict_array[(idx+t_idx) % nodes_length]['x'])
                     direction_flag = spline_util.is_same_direction_list(x_array,deviation=10)
@@ -158,19 +168,9 @@ class Rule(Rule.Rule):
                             print(t_idx, "t_idx:",format_dict_array[(idx+t_idx)%nodes_length]['t'])
                             print(t_idx, "code:",format_dict_array[(idx+t_idx)%nodes_length]['code'])
 
-                previous_index = (idx+nodes_length-1) % nodes_length
-                previous_x = format_dict_array[previous_index]['x']
-                previous_y = format_dict_array[previous_index]['y']
-                #print("previous_x,y:", previous_x, previous_y)
-
-                previous_2index = (idx+nodes_length-2) % nodes_length
-                previous_2x = format_dict_array[previous_2index]['x']
-                previous_2y = format_dict_array[previous_2index]['y']
-                previos_ground_length = previous_x - previous_2x
-
-                neighbor_height = previous_y - format_dict_array[idx]['y']
-
                 # check leg length percent
+                previos_ground_length = format_dict_array[(idx-2+nodes_length)%nodes_length]['distance']
+                neighbor_height = format_dict_array[(idx-1+nodes_length)%nodes_length]['distance']
                 body_length = format_dict_array[(idx+3+nodes_length)%nodes_length]['distance']
                 leg_length = format_dict_array[(idx+1+nodes_length)%nodes_length]['distance']
                 if is_match_pattern:
@@ -206,6 +206,7 @@ class Rule(Rule.Rule):
                     if is_debug_mode:
                         print("Fail leg_percent:", leg_percent)
                         print("neighbor_height:", neighbor_height)
+                        print("previos_ground_length:", previos_ground_length)
                         print("leg_height:", leg_length)
                         print("body_height:", body_length)
 
