@@ -78,7 +78,7 @@ class Rule(Rule.Rule):
                 #is_debug_mode = True
 
                 if is_debug_mode:
-                    debug_coordinate_list = [[477,-6]]
+                    debug_coordinate_list = [[184,295]]
                     if not([format_dict_array[idx]['x'],format_dict_array[idx]['y']] in debug_coordinate_list):
                         continue
 
@@ -147,8 +147,10 @@ class Rule(Rule.Rule):
                     is_match_pattern = False
                     # only go bottom.
                     if format_dict_array[(idx-1+nodes_length)%nodes_length]['x_equal_fuzzy']:
-                        if format_dict_array[(idx-1+nodes_length)%nodes_length]['y_direction'] < 0:
-                           is_match_pattern = True
+                        fail_code = 420
+                        # PS: remarked, because of 「口」是對的，but for「中」或「虫」是錯的。
+                        #if format_dict_array[(idx-1+nodes_length)%nodes_length]['y_direction'] < 0:
+                        is_match_pattern = True
 
                 # must match x axis same direction.
                 if is_match_pattern:
