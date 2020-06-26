@@ -4,6 +4,7 @@
 
 ![字重預覽](https://github.com/max32002/swei-sans/raw/master/preview/compare_styles.png)
 
+## 與其他字體的比較
 相比於思源黑體，獅尾黑體的造型更加簡明現代，版面效果清新輕快。在較重的字重裡，有些腳很難判斷該不該拔，就留著了，以避免誤拔。
 
 ![字體比較](https://github.com/max32002/swei-sans/raw/master/preview/compare_noto_sans.png)
@@ -17,6 +18,9 @@
 * 未来荧黑的「甫」系列字，有些被腳被誤拔。
 
 雖然是下載未來熒黑的 CJK TC 版本，不過有些筆順似乎不是台灣用法，像是「每」的母，「謳」的言和區寫法比較不一樣。像是：集和葉裡「木」的寫法也不一樣，該分開還是該連在一起。「睜」的眼睫毛方向。
+
+和「源泉圓體TW」的差異之一，是Regular 的字重有調整了部份的常用字，因為拔腳之後，不平衡的問題。
+
 
 ## 更新日誌
 [點擊此處](https://github.com/max32002/swei-sans/change_log.md) 查看更新記錄。
