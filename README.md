@@ -23,7 +23,7 @@
 
 
 ## 更新日誌
-[點擊此處](https://github.com/max32002/swei-sans/change_log.md) 查看更新記錄。
+[點擊此處](https://github.com/max32002/swei-sans/blob/master/change_log.md) 查看更新記錄。
 
 ## 下載字型
 
