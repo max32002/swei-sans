@@ -9,7 +9,7 @@
 
 ![字體比較](https://github.com/max32002/swei-sans/raw/master/preview/compare_noto_sans.png)
 
-「獅尾黑體」、「思源黑體」、「未来荧黑」的比較：
+### 「獅尾黑體」、「思源黑體」、「未来荧黑」的比較：
 * 針對有斜邊的「山」部，獅尾黑體表現的比未來熒黑好一點點。
 * 在「刂」的筆畫，獅尾比較相似台灣(教育部國字標準字體)教育部推薦字體筆順。
 * 在「肉」、「糸」、「女」、「辶」、「食」的筆畫，獅尾比較相似台灣教育部推薦字體筆順，適合教育用途。
@@ -22,7 +22,7 @@
 和「源泉圓體TW」的差異之一，是Regular 的字重有調整了部份的常用字，因為拔腳之後，不平衡的問題。
 
 
-「CJK TC」和「CJK SC」的比較：
+### 「CJK TC」和「CJK SC」的比較：
 ![TC和SC比較](https://github.com/max32002/swei-sans/raw/master/preview/compare_tc_sc.png)
 * 在「肉」、「糸」、「女」、「辶」、「食」的筆畫不同，CJK SC 「肉字旁部首」變成「月」。 
 * 在「草」部的筆畫，CJK SC 中間連起來。
@@ -53,6 +53,14 @@
     
 ## 相關網頁
 
+* 獅尾XD珍珠 Swei.XD.Pearl
+https://max-everyday.com/2020/07/swei-xd-pearl/
+* 獅尾B2黑體 Swei B2 Sans
+https://max-everyday.com/2020/07/swei-b2-sans/
+* 獅尾B2宋朝 Swei B2 Serif
+https://max-everyday.com/2020/07/swei-b2-serif/
+* 獅尾D露西 Swei D Lucy
+https://max-everyday.com/2020/07/swei-d-lucy/
 * 台灣圓體 TaiwanPearl
 https://max-everyday.com/2020/06/taiwanpearl/
 * 獅尾肉丸 Swei Meatball
@@ -84,5 +92,5 @@ https://github.com/max32002/YuPearl
 
 ## 贊助Max
 
-很高興可以替中華民國美學盡一分心力，如果你覺得這篇文章寫的很好，想打賞Max，贊助方式如下：
+很高興可以替中華民國美學盡一分心力、讓台灣擁有更好的文字風景，希望能提供另一種美學讓大家選擇，如果你覺得這篇文章寫的很好，想打賞Max，贊助方式如下：
 https://max-everyday.com/about/#donate
