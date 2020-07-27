@@ -95,6 +95,8 @@ https://github.com/justfont/open-huninn-font
 https://github.com/max32002/FakePearl
 * 俊羽圓體
 https://github.com/max32002/YuPearl
+* 未来荧黑·未來熒黑·ヒカリ角ゴ·Wêlai Glow Sans
+https://github.com/welai/glow-sans
 
 ## 贊助Max
 
