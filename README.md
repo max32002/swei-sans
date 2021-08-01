@@ -59,8 +59,18 @@
 ```
 @font-face {
   font-family: SweiSansCJKtc-Regular;
-  src: url(https://cdn.jsdelivr.net/gh/max32002/swei-sans@2.101/WebFont/CJK%20TC/SweiSansCJKtc-Regular.woff2) format("woff2")
-  , url(https://cdn.jsdelivr.net/gh/max32002/swei-sans@2.101/WebFont/CJK%20TC/SweiSansCJKtc-Regular.woff) format("woff");
+  src: url(https://cdn.jsdelivr.net/gh/max32002/swei-sans@2.102/WebFont/CJK%20TC/SweiSansCJKtc-Regular.woff2) format("woff2")
+  , url(https://cdn.jsdelivr.net/gh/max32002/swei-sans@2.102/WebFont/CJK%20TC/SweiSansCJKtc-Regular.woff) format("woff");
+}
+@font-face {
+  font-family: SweiSansCJKsc-Regular;
+  src: url(https://cdn.jsdelivr.net/gh/max32002/swei-sans@2.102/WebFont/CJK%20SC/SweiSansCJKsc-Regular.woff2) format("woff2")
+  , url(https://cdn.jsdelivr.net/gh/max32002/swei-sans@2.102/WebFont/CJK%20SC/SweiSansCJKsc-Regular.woff) format("woff");
+}
+@font-face {
+  font-family: SweiSansCJKjp-Regular;
+  src: url(https://cdn.jsdelivr.net/gh/max32002/swei-sans@2.102/WebFont/CJK%20JP/SweiSansCJKjp-Regular.woff2) format("woff2")
+  , url(https://cdn.jsdelivr.net/gh/max32002/swei-sans@2.102/WebFont/CJK%20JP/SweiSansCJKjp-Regular.woff) format("woff");
 }
 ```
 
